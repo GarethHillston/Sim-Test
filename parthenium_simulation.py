@@ -1,31 +1,22 @@
 import numpy as np
-from datetime import datetime
-import os
-import plotting
-import spreadmodels
 
-gridSize = 100
-maxIterations = 50
-numSeeds = 5
-shading = 'flat'
-infectiousThreshold = 0.2
-virality = 0.2
+import initialise_grid
+import plot_data
+import spread_model
 
-now = datetime.now().strftime("%d_%m_%y__%H%M%S")
-outputFolder = "./plots/{dateTime}".format(dateTime=now)
-os.mkdir(outputFolder)
+grid_size = 100
+max_iterations = 100
+
 
 # Initialise cells
-locs = np.zeros((gridSize, gridSize), dtype=float)
-centre = gridSize // 2
-gridQuarter = gridSize // 4
-for i in range(numSeeds):
-    seedX = np.random.randint(centre - gridQuarter, centre + gridQuarter)
-    seedY = np.random.randint(centre - gridQuarter, centre + gridQuarter)
-    locs[seedX, seedY] = 1
+#locations = np.zeros((gridSize, gridSize), dtype=float)
+locations = np.zeros((grid_size, grid_size), dtype=int)
 
-for i in range(maxIterations):
-    plotting.replot(shading, outputFolder, i, locs)
-    locs = spreadmodels.spread_basic_threshold(locs, gridSize, infectiousThreshold, virality)
+initialise_grid.random_start(locations, grid_size, 5)
 
-plotting.replot(shading, outputFolder, maxIterations + 1, locs)
+for i in range(max_iterations):
+    plot_data.replot(locations, i)
+
+    locations = spread_model.markov_basic(locations, grid_size)
+
+plot_data.replot(locations, max_iterations + 1)
